@@ -10,7 +10,7 @@ Dieses Repository stellt das Add-on **WebUntis Stundenplan** fuer Home Assistant
 4. Die GitHub-URL dieses Repositorys eintragen, zum Beispiel:
 
    ```text
-   https://github.com/OWNER/webuntis-ha-addons
+   https://github.com/Createsince1963/HA_WebUntis
    ```
 
 5. Danach erscheint das Add-on **WebUntis Stundenplan** im Add-on Store.
