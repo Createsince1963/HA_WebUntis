@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebUntis Stundenplan</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand-mark">W</div>
+      <div class="brand-copy">
+        <h1>WEBUNTIS</h1>
+        <p id="subtitle">Stundenplan</p>
+      </div>
+      <button id="refreshBtn" class="frame-button" type="button" title="Aktualisieren">Aktualisieren</button>
+    </header>
+
+    <section id="loginPanel" class="card login-card">
+      <div class="card-title">Anmelden</div>
+      <div class="field-grid">
+        <label>
+          <span>Server</span>
+          <input id="serverInput" autocomplete="url" placeholder="demo.local">
+        </label>
+        <label>
+          <span>Schule</span>
+          <input id="schoolInput" autocomplete="organization" placeholder="demo">
+        </label>
+        <label>
+          <span>Benutzer</span>
+          <input id="userInput" autocomplete="username" placeholder="Demo">
+        </label>
+        <label>
+          <span>Passwort</span>
+          <input id="passwordInput" autocomplete="current-password" type="password" placeholder="Demo">
+        </label>
+      </div>
+      <div class="actions-row">
+        <button id="loginBtn" class="primary-button" type="button">Anmelden</button>
+        <button id="demoBtn" class="secondary-button" type="button">Demo</button>
+      </div>
+      <p id="loginMessage" class="status-line"></p>
+    </section>
+
+    <section id="dashboard" class="dashboard hidden">
+      <nav class="tabs" aria-label="Ansichten">
+        <button class="chip active" data-tab="plan" type="button">Plan</button>
+        <button class="chip" data-tab="substitutions" type="button">Vertretungen</button>
+        <button class="chip" data-tab="exams" type="button">Pruefungen</button>
+        <button class="chip" data-tab="homework" type="button">Aufgaben</button>
+        <button class="chip" data-tab="messages" type="button">Nachrichten</button>
+        <button class="chip" data-tab="holidays" type="button">Ferien</button>
+        <button class="chip" data-tab="teachers" type="button">Lehrer</button>
+      </nav>
+
+      <section class="week-card">
+        <div class="week-row">
+          <button id="prevWeek" class="frame-button square" type="button" title="Vorige Woche">&lsaquo;</button>
+          <div id="weekLabel" class="week-label"></div>
+          <button id="nextWeek" class="frame-button square" type="button" title="Naechste Woche">&rsaquo;</button>
+        </div>
+        <div class="mode-row">
+          <button id="todayBtn" class="frame-button" type="button">Heute</button>
+          <button id="dayModeBtn" class="frame-button active" type="button">Tag</button>
+          <button id="weekModeBtn" class="frame-button" type="button">Woche</button>
+        </div>
+        <div id="dayStrip" class="day-strip"></div>
+      </section>
+
+      <div id="notice" class="notice hidden"></div>
+      <section id="content" class="content-list"></section>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

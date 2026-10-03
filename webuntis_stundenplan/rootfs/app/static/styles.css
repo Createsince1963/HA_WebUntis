@@ -1,0 +1,445 @@
+:root {
+  --bg: #0a1424;
+  --bg-elevated: #0e1b30;
+  --card: #112038;
+  --card-border: #1c3050;
+  --chip: #13243d;
+  --chip-border: #1f3555;
+  --text: #f1f5fb;
+  --muted: #8fa3bd;
+  --lime: #8de04a;
+  --lime-light: #b5f063;
+  --on-lime: #0b1a0a;
+  --red: #ff6b6b;
+  --amber: #ffc857;
+  --green: #6be35b;
+  color-scheme: dark;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(980px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--lime-light), var(--lime));
+  color: var(--on-lime);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.brand-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.brand-copy p,
+.status-line,
+.notice {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.card,
+.week-card,
+.lesson-card,
+.row-card {
+  background: linear-gradient(180deg, #142843, #0e1b31);
+  border: 1px solid #27446f;
+  border-radius: 18px;
+}
+
+.card {
+  padding: 16px;
+}
+
+.card-title {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+label span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--chip-border);
+  border-radius: 12px;
+  background: var(--chip);
+  color: var(--text);
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--lime);
+}
+
+.actions-row,
+.mode-row,
+.week-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actions-row {
+  margin-top: 14px;
+}
+
+.primary-button,
+.secondary-button,
+.frame-button,
+.chip {
+  min-height: 38px;
+  border: 1px solid var(--chip-border);
+  border-radius: 14px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.primary-button {
+  flex: 1;
+  border: 0;
+  background: linear-gradient(135deg, var(--lime-light), var(--lime));
+  color: var(--on-lime);
+}
+
+.secondary-button,
+.frame-button,
+.chip {
+  background: var(--chip);
+  color: var(--text);
+}
+
+.frame-button {
+  border-color: var(--lime);
+}
+
+.frame-button.active,
+.chip.active {
+  background: linear-gradient(135deg, var(--lime-light), var(--lime));
+  border-color: var(--lime-light);
+  color: var(--on-lime);
+}
+
+.square {
+  width: 42px;
+  padding: 0;
+}
+
+.dashboard {
+  display: grid;
+  gap: 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.chip {
+  white-space: nowrap;
+}
+
+.week-card {
+  padding: 12px;
+}
+
+.week-label {
+  flex: 1;
+  text-align: center;
+  font-weight: 800;
+}
+
+.mode-row {
+  margin-top: 10px;
+}
+
+.mode-row .frame-button {
+  flex: 1;
+}
+
+.day-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.day-button {
+  min-height: 76px;
+  padding: 8px 4px;
+  border: 1px solid var(--chip-border);
+  border-radius: 12px;
+  background: var(--chip);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.day-button.today {
+  border-color: var(--lime);
+}
+
+.day-button.active {
+  background: linear-gradient(135deg, var(--lime-light), var(--lime));
+  color: var(--on-lime);
+}
+
+.day-name,
+.day-dot {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.day-button.active .day-name,
+.day-button.active .day-dot {
+  color: var(--on-lime);
+}
+
+.day-number {
+  display: block;
+  margin: 3px 0;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.day-dot {
+  color: var(--lime);
+}
+
+.content-list {
+  display: grid;
+  gap: 8px;
+}
+
+.lesson-card,
+.row-card {
+  border-color: var(--card-border);
+  padding: 12px;
+}
+
+.lesson-card {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.lesson-card.cancelled {
+  border-color: var(--red);
+}
+
+.lesson-card.exam {
+  border-color: var(--amber);
+}
+
+.lesson-card.changed {
+  border-color: var(--green);
+}
+
+.time-start {
+  color: var(--lime-light);
+  font-weight: 900;
+}
+
+.time-end,
+.subline,
+.empty {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lesson-title,
+.row-title {
+  font-weight: 850;
+}
+
+.cancelled .lesson-title {
+  text-decoration: line-through;
+}
+
+.badge {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.badge.red {
+  color: var(--red);
+}
+
+.badge.amber {
+  color: var(--amber);
+}
+
+.badge.green {
+  color: var(--green);
+}
+
+.room {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lime);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.room::before {
+  content: "";
+  width: 2px;
+  height: 46px;
+  border-radius: 2px;
+  background: var(--lime);
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+
+.week-column {
+  display: grid;
+  gap: 7px;
+}
+
+.week-heading {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mini-card {
+  min-height: 86px;
+  padding: 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.mini-time {
+  color: var(--lime-light);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.mini-title {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.mini-room {
+  margin-top: 2px;
+  color: var(--lime);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.notice {
+  padding: 10px 12px;
+  border: 1px solid var(--chip-border);
+  border-radius: 12px;
+  background: var(--bg-elevated);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 700px) {
+  .app-shell {
+    padding: 14px 12px;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar .frame-button {
+    padding-inline: 10px;
+  }
+
+  .lesson-card {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+
+  .room {
+    grid-column: 2;
+    font-size: 15px;
+  }
+
+  .room::before {
+    height: 22px;
+  }
+
+  .week-grid {
+    grid-template-columns: 1fr;
+  }
+}
