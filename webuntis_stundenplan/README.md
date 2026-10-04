@@ -4,6 +4,30 @@ Home Assistant Add-on auf Basis des vorhandenen `APK WEBUNTIS` Backends.
 
 Die APK-Quelle bleibt unverändert/read-only. Dieses Paket bringt eine eigene Web-GUI mit, die das dunkle Navy/Lime-Design, Karten, Chips, Wochenleiste und Stundenplan-Kacheln der APK nachbildet.
 
+Basis:
+
+- Backend: aus dem aktuellen `APK WEBUNTIS` Projekt uebernommen.
+- GUI: neue Home-Assistant-Web-GUI fuer Ingress.
+- Win11/PySide6-App: nur als Designreferenz gelesen, nicht als Laufzeitbasis.
+- Add-on-Version: folgt der verwendeten APK-Basis `WebUntis-v0.3.0-debug.apk`.
+
+Uebernommene Datenbereiche aus APK 0.3:
+
+- Stundenplan mit Tag-/Wochenansicht
+- Vertretungen
+- Pruefungen
+- Aufgaben
+- Nachrichten
+- Ferien
+- Lehrer und Lehrer-Stunden aus dem eigenen Stundenplan
+- Schulsuche mit Server/LoginName-Auswahl
+- Einstellungen fuer Sprache und Wochenlayout
+
+Nicht 1:1 uebernommen, weil Home Assistant statt Android laeuft:
+
+- Android-Push-Benachrichtigungen
+- Android-Wecker/Wake-Alarm
+
 ## Installation
 
 1. Ordner `webuntis-ha-addon` in ein lokales Home-Assistant-Add-on-Repository kopieren.

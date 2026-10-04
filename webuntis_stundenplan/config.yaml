@@ -1,8 +1,8 @@
 name: WebUntis Stundenplan
-version: "0.1.0"
+version: "0.3.0"
 slug: webuntis_stundenplan
 description: WebUntis timetable with the APK-style interface for Home Assistant
-url: https://example.local/webuntis-stundenplan
+url: https://github.com/Createsince1963/HA_WebUntis
 arch:
   - aarch64
   - amd64

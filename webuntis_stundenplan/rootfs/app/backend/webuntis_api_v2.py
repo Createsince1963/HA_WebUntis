@@ -517,11 +517,41 @@ def school_timetable(school_id: int, class_id: Optional[int] = None,
 @app.get("/api/data/teachers")
 def teachers(authorization: Optional[str] = Header(default=None)):
     def run(s: webuntis.Session) -> List[Any]:
-        return [{"id": int(t.id), "name": t.name,
-                 "shortName": t.name,
-                 "fullName": getattr(t, "full_name", None) or getattr(t, "long_name", t.name)}
-                for t in s.teachers()]
+        try:
+            return [{"id": int(t.id), "name": t.name,
+                     "shortName": t.name,
+                     "fullName": getattr(t, "full_name", None) or getattr(t, "long_name", t.name)}
+                    for t in s.teachers()]
+        except Exception:
+            first = date.today() - timedelta(days=date.today().weekday())
+            rows: Dict[str, Dict[str, Any]] = {}
+            for a, b in _chunks(first, first + timedelta(days=13)):
+                for row in rest_timetable.fetch_rows(s, a, b):
+                    for short in [x.strip() for x in str(row.get("teacher") or "").split(",") if x.strip()]:
+                        rows.setdefault(short, {"id": None, "name": short, "shortName": short, "fullName": short})
+            return sorted(rows.values(), key=lambda item: item["shortName"])
     return _guarded(authorization, "Teachers", run)
+
+
+@app.get("/api/data/teachers/{short_name}/lessons")
+def teacher_lessons(short_name: str, authorization: Optional[str] = Header(default=None)):
+    def run(s: webuntis.Session) -> List[Any]:
+        first = date.today() - timedelta(days=date.today().weekday())
+        rows: List[Dict[str, Any]] = []
+        for a, b in _chunks(first, first + timedelta(days=13)):
+            rows.extend(rest_timetable.fetch_rows(s, a, b))
+        found = []
+        for row in rows:
+            teachers = [x.strip().lower() for x in str(row.get("teacher") or "").split(",")]
+            if short_name.strip().lower() in teachers and not row.get("allDay"):
+                found.append(row)
+        unique: Dict[str, Dict[str, Any]] = {}
+        for row in found:
+            key = f"{row.get('date')}|{str(row.get('startTime'))[-5:]}|{row.get('subject')}"
+            if key not in unique or unique[key].get("cancelled"):
+                unique[key] = row
+        return sorted(unique.values(), key=lambda r: (r.get("date") or "", str(r.get("startTime") or "")[-5:]))
+    return _guarded(authorization, "Teacher lessons", run)
 
 
 @app.get("/api/data/substitutions")

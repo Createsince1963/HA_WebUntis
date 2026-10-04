@@ -4,6 +4,14 @@ const state = {
   school: "",
   lessons: [],
   rows: [],
+  selectedSchoolLogin: "",
+  selectedServer: "",
+  selectedTeacher: "",
+  teacherLessons: [],
+  unsupported: new Set(),
+  lang: "de",
+  weekLayout: "portrait",
+  schoolSearchTimer: 0,
   selectedDate: startOfToday(),
   weekStart: mondayOf(startOfToday()),
   dayMode: true,
@@ -87,6 +95,8 @@ async function loadOptions() {
     const data = payload.data || {};
     $("serverInput").value = data.server || "demo.local";
     $("schoolInput").value = data.school || "demo";
+    state.selectedSchoolLogin = data.school || "demo";
+    state.selectedServer = data.server || "demo.local";
     $("userInput").value = data.username || "Demo";
     $("passwordInput").value = data.password || "Demo";
     state.days = Number(data.days || 7);
@@ -102,8 +112,8 @@ async function loadOptions() {
 async function login() {
   setMessage("Anmeldung laeuft ...");
   const payload = {
-    server: $("serverInput").value.trim(),
-    school: $("schoolInput").value.trim(),
+    server: (state.selectedServer || $("serverInput").value).trim(),
+    school: (state.selectedSchoolLogin || $("schoolInput").value).trim(),
     username: $("userInput").value.trim(),
     password: $("passwordInput").value,
   };
@@ -121,6 +131,7 @@ async function login() {
   $("subtitle").textContent = `${state.user} · ${state.school}`;
   $("loginPanel").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
   setMessage("");
   await reloadAll();
 }
@@ -128,11 +139,13 @@ async function login() {
 async function reloadAll() {
   if (!state.token) return;
   setNotice("Aktualisiere ...");
-  await Promise.all([
-    loadTimetable(),
-    loadRowsForTab(state.tab),
-  ]);
-  setNotice("");
+  try {
+    await loadTimetable();
+    await loadRowsForTab(state.tab);
+    setNotice("");
+  } catch (err) {
+    setNotice(err.message || "Aktualisierung fehlgeschlagen");
+  }
   render();
 }
 
@@ -158,7 +171,52 @@ async function loadRowsForTab(tab) {
     return;
   }
   const payload = await request(map[tab]);
+  if (payload.available === false || payload.message === "UNSUPPORTED") state.unsupported.add(tab);
+  else state.unsupported.delete(tab);
   state.rows = payload.status ? payload.data || [] : [];
+}
+
+async function searchSchools(query) {
+  const results = $("schoolResults");
+  const q = query.trim();
+  state.selectedSchoolLogin = q;
+  if (q.length < 2) {
+    results.classList.add("hidden");
+    results.innerHTML = "";
+    return;
+  }
+  try {
+    const payload = await request(`/api/schools/search?q=${encodeURIComponent(q)}`);
+    renderSchoolResults(payload.data || []);
+  } catch {
+    results.classList.add("hidden");
+    results.innerHTML = "";
+  }
+}
+
+function renderSchoolResults(items) {
+  const results = $("schoolResults");
+  results.innerHTML = "";
+  if (!items.length) {
+    results.classList.add("hidden");
+    return;
+  }
+  for (const school of items.slice(0, 8)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "school-result";
+    button.innerHTML = `<strong>${escapeHtml(school.displayName || school.loginName || "")}</strong><span>${escapeHtml(school.address || school.server || "")}</span>`;
+    button.addEventListener("click", () => {
+      $("schoolInput").value = school.displayName || school.loginName || "";
+      $("serverInput").value = school.server || $("serverInput").value;
+      state.selectedSchoolLogin = school.loginName || $("schoolInput").value;
+      state.selectedServer = school.server || $("serverInput").value;
+      results.classList.add("hidden");
+      results.innerHTML = "";
+    });
+    results.appendChild(button);
+  }
+  results.classList.remove("hidden");
 }
 
 function render() {
@@ -172,6 +230,9 @@ function renderTabs() {
   tabs.forEach((button) => button.classList.toggle("active", button.dataset.tab === state.tab));
   $("dayModeBtn").classList.toggle("active", state.dayMode);
   $("weekModeBtn").classList.toggle("active", !state.dayMode);
+  $("portraitBtn").classList.toggle("active", state.weekLayout !== "landscape");
+  $("landscapeBtn").classList.toggle("active", state.weekLayout === "landscape");
+  document.querySelectorAll(".lang-button").forEach((button) => button.classList.toggle("active", button.dataset.lang === state.lang));
 }
 
 function renderWeek() {
@@ -215,11 +276,11 @@ function renderPlan() {
   content.innerHTML = "";
   if (!state.dayMode) {
     const grid = document.createElement("div");
-    grid.className = "week-grid";
+    grid.className = state.weekLayout === "landscape" ? "week-grid" : "content-list";
     for (let i = 0; i < 5; i += 1) {
       const day = addDays(state.weekStart, i);
       const col = document.createElement("div");
-      col.className = "week-column";
+      col.className = state.weekLayout === "landscape" ? "week-column" : "content-list";
       col.innerHTML = `<div class="week-heading">${weekdaysLong[i]} ${dm(day)}</div>`;
       const list = byDate.get(iso(day)) || [];
       if (!list.length) col.appendChild(emptyNode("Keine Stunden"));
@@ -282,11 +343,76 @@ function miniLessonNode(lesson) {
 function renderRows() {
   const content = $("content");
   content.innerHTML = "";
+  if (state.unsupported.has(state.tab)) {
+    content.appendChild(emptyNode("Von dieser Schule nicht unterstuetzt"));
+    return;
+  }
+  if (state.tab === "teachers") {
+    renderTeachers(content);
+    return;
+  }
   if (!state.rows.length) {
     content.appendChild(emptyNode("Keine Daten"));
     return;
   }
   for (const row of state.rows) content.appendChild(rowNode(row));
+}
+
+function renderTeachers(content) {
+  const picker = document.createElement("section");
+  picker.className = "row-card teacher-picker";
+  const options = state.rows
+    .filter((teacher) => teacher.shortName || teacher.name)
+    .map((teacher) => {
+      const short = teacher.shortName || teacher.name || "";
+      const label = teacher.fullName && teacher.fullName !== short ? `${teacher.fullName} (${short})` : short;
+      return `<option value="${escapeHtml(short)}"${short === state.selectedTeacher ? " selected" : ""}>${escapeHtml(label)}</option>`;
+    })
+    .join("");
+  picker.innerHTML = `
+    <div class="row-title">Lehrer waehlen</div>
+    <div class="teacher-actions">
+      <select id="teacherSelect">${options}</select>
+      <button id="teacherShowBtn" class="frame-button" type="button">Stunden anzeigen</button>
+      <button id="teacherResetBtn" class="frame-button" type="button">Zuruecksetzen</button>
+    </div>
+  `;
+  content.appendChild(picker);
+  const select = picker.querySelector("#teacherSelect");
+  if (!state.selectedTeacher && select?.value) state.selectedTeacher = select.value;
+  select?.addEventListener("change", () => {
+    state.selectedTeacher = select.value;
+  });
+  picker.querySelector("#teacherShowBtn")?.addEventListener("click", () => loadTeacherLessons());
+  picker.querySelector("#teacherResetBtn")?.addEventListener("click", () => {
+    state.selectedTeacher = "";
+    state.teacherLessons = [];
+    renderTeachersOnly();
+  });
+
+  if (state.teacherLessons.length) {
+    const title = document.createElement("div");
+    title.className = "week-heading";
+    title.textContent = `Unterricht von ${state.selectedTeacher}`;
+    content.appendChild(title);
+    state.teacherLessons.forEach((lesson) => content.appendChild(lessonNode(lesson)));
+  }
+
+  if (!state.rows.length) content.appendChild(emptyNode("Keine Lehrer gefunden"));
+  else state.rows.forEach((teacher) => content.appendChild(rowNode(teacher)));
+}
+
+function renderTeachersOnly() {
+  if (state.tab === "teachers") render();
+}
+
+async function loadTeacherLessons() {
+  if (!state.selectedTeacher) return;
+  setNotice("Lade Lehrer-Stunden ...");
+  const payload = await request(`/api/data/teachers/${encodeURIComponent(state.selectedTeacher)}/lessons`);
+  state.teacherLessons = payload.status ? payload.data || [] : [];
+  setNotice(payload.status ? "" : payload.message || "Lehrer-Stunden konnten nicht geladen werden");
+  render();
 }
 
 function rowNode(row) {
@@ -303,6 +429,30 @@ function rowNode(row) {
   ].filter(Boolean);
   node.innerHTML = `<div class="row-title">${escapeHtml(title)}</div><div class="subline">${escapeHtml(parts.join(" · "))}</div>`;
   return node;
+}
+
+async function logout() {
+  try {
+    await request("/api/auth/logout", { method: "POST" });
+  } catch {
+    // Session cleanup is best-effort.
+  }
+  state.token = "";
+  state.rows = [];
+  state.lessons = [];
+  state.teacherLessons = [];
+  $("dashboard").classList.add("hidden");
+  $("settingsPanel").classList.add("hidden");
+  $("loginPanel").classList.remove("hidden");
+  $("logoutBtn").classList.add("hidden");
+  $("subtitle").textContent = "Stundenplan";
+}
+
+function showSettings(open) {
+  $("settingsPanel").classList.toggle("hidden", !open);
+  $("dashboard").classList.toggle("hidden", open || !state.token);
+  $("loginPanel").classList.toggle("hidden", open || !!state.token);
+  renderTabs();
 }
 
 function emptyNode(text) {
@@ -328,8 +478,21 @@ $("demoBtn").addEventListener("click", () => {
   $("schoolInput").value = "demo";
   $("userInput").value = "Demo";
   $("passwordInput").value = "Demo";
+  state.selectedSchoolLogin = "demo";
+  state.selectedServer = "demo.local";
+});
+$("serverInput").addEventListener("input", () => {
+  state.selectedServer = $("serverInput").value.trim();
+});
+$("schoolInput").addEventListener("input", () => {
+  clearTimeout(state.schoolSearchTimer);
+  state.selectedSchoolLogin = $("schoolInput").value.trim();
+  state.schoolSearchTimer = setTimeout(() => searchSchools($("schoolInput").value), 300);
 });
 $("refreshBtn").addEventListener("click", () => reloadAll().catch((err) => setNotice(err.message)));
+$("settingsBtn").addEventListener("click", () => showSettings(true));
+$("closeSettingsBtn").addEventListener("click", () => showSettings(false));
+$("logoutBtn").addEventListener("click", () => logout());
 $("prevWeek").addEventListener("click", async () => {
   state.weekStart = addDays(state.weekStart, -7);
   state.selectedDate = state.weekStart;
@@ -354,8 +517,21 @@ $("weekModeBtn").addEventListener("click", () => {
   state.dayMode = false;
   render();
 });
+$("portraitBtn").addEventListener("click", () => {
+  state.weekLayout = "portrait";
+  renderTabs();
+});
+$("landscapeBtn").addEventListener("click", () => {
+  state.weekLayout = "landscape";
+  renderTabs();
+});
+document.querySelectorAll(".lang-button").forEach((button) => button.addEventListener("click", () => {
+  state.lang = button.dataset.lang;
+  renderTabs();
+}));
 tabs.forEach((button) => button.addEventListener("click", async () => {
   state.tab = button.dataset.tab;
+  state.teacherLessons = state.tab === "teachers" ? state.teacherLessons : [];
   await loadRowsForTab(state.tab);
   render();
 }));

@@ -15,6 +15,8 @@
         <p id="subtitle">Stundenplan</p>
       </div>
       <button id="refreshBtn" class="frame-button" type="button" title="Aktualisieren">Aktualisieren</button>
+      <button id="settingsBtn" class="frame-button" type="button" title="Einstellungen">Einstellungen</button>
+      <button id="logoutBtn" class="frame-button hidden" type="button" title="Abmelden">Abmelden</button>
     </header>
 
     <section id="loginPanel" class="card login-card">
@@ -28,6 +30,7 @@
           <span>Schule</span>
           <input id="schoolInput" autocomplete="organization" placeholder="demo">
         </label>
+        <div id="schoolResults" class="school-results hidden"></div>
         <label>
           <span>Benutzer</span>
           <input id="userInput" autocomplete="username" placeholder="Demo">
@@ -71,6 +74,36 @@
 
       <div id="notice" class="notice hidden"></div>
       <section id="content" class="content-list"></section>
+    </section>
+
+    <section id="settingsPanel" class="card settings-card hidden">
+      <div class="settings-head">
+        <button id="closeSettingsBtn" class="frame-button square" type="button" title="Zurueck">&lsaquo;</button>
+        <div class="card-title">Einstellungen</div>
+      </div>
+      <div class="settings-section">
+        <div class="setting-title">Sprache</div>
+        <div class="segmented">
+          <button class="frame-button lang-button active" data-lang="de" type="button">Deutsch</button>
+          <button class="frame-button lang-button" data-lang="en" type="button">English</button>
+          <button class="frame-button lang-button" data-lang="fr" type="button">Francais</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="setting-title">Wochenansicht</div>
+        <div class="segmented">
+          <button id="portraitBtn" class="frame-button active" type="button">Liste</button>
+          <button id="landscapeBtn" class="frame-button" type="button">Spalten</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="setting-title">Home Assistant</div>
+        <p class="status-line">Android-Benachrichtigungen und Wecker aus der APK sind in Home Assistant nicht nativ verfuegbar. Die Datenbereiche und Ansichten sind uebernommen.</p>
+      </div>
+      <div class="settings-section">
+        <div class="setting-title">Version</div>
+        <p class="status-line">HA Add-on 0.3.0, Basis WebUntis APK 0.3.0</p>
+      </div>
     </section>
   </main>
 
