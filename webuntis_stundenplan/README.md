@@ -9,7 +9,7 @@ Basis:
 - Backend: aus dem aktuellen `APK WEBUNTIS` Projekt uebernommen.
 - GUI: neue Home-Assistant-Web-GUI fuer Ingress.
 - Win11/PySide6-App: nur als Designreferenz gelesen, nicht als Laufzeitbasis.
-- Add-on-Version: folgt der verwendeten APK-Basis `WebUntis-v0.3.0-debug.apk`.
+- Add-on-Version `0.3.1`: basiert auf `WebUntis-v0.3.0-debug.apk` und enthaelt HA-spezifische Login-Fixes.
 
 Uebernommene Datenbereiche aus APK 0.3:
 

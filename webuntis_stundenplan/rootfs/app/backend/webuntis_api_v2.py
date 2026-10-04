@@ -75,6 +75,43 @@ def _server_url(server: str) -> str:
     return host
 
 
+def _server_host(server: str) -> str:
+    value = server.strip().rstrip("/")
+    if "://" in value:
+        value = value.split("://", 1)[1]
+    return value.split("/", 1)[0].split(":", 1)[0].lower()
+
+
+def _resolve_school_login(server: str, school: str) -> str:
+    """WebUntis JSON-RPC needs the school loginName, not the display name."""
+    school = school.strip()
+    if not school or school.lower() in DEMO_HOSTS:
+        return school
+    try:
+        result = school_search(school)
+        wanted_host = _server_host(server)
+        candidates = result.get("data") or []
+        exact = []
+        same_host = []
+        for item in candidates:
+            display = str(item.get("displayName") or "")
+            login_name = str(item.get("loginName") or "")
+            item_host = _server_host(str(item.get("server") or ""))
+            if display.casefold() == school.casefold() or login_name.casefold() == school.casefold():
+                exact.append(item)
+            if wanted_host and item_host == wanted_host:
+                same_host.append(item)
+        for item in same_host + exact + candidates:
+            login_name = str(item.get("loginName") or "").strip()
+            if login_name:
+                if login_name != school:
+                    log.info("Resolved school display name %r to loginName %r", school, login_name)
+                return login_name
+    except Exception:
+        log.info("School loginName resolution failed for %r", school, exc_info=True)
+    return school
+
+
 def _fail(message: str) -> Dict[str, Any]:
     return {"status": False, "data": None, "message": message}
 
@@ -411,7 +448,8 @@ def schools_nearby(lat: float, lon: float) -> Dict[str, Any]:
 @app.post("/api/auth/validate")
 def login(req: LoginRequest) -> Dict[str, Any]:
     url = _server_url(req.server)
-    log.info("Login attempt: user=%s school=%s server=%s", req.username, req.school, url)
+    school = _resolve_school_login(req.server, req.school)
+    log.info("Login attempt: user=%s school=%s server=%s", req.username, school, url)
     try:
         if url.lower().split(":")[0] in DEMO_HOSTS:
             if (req.username, req.password) != ("Demo", "Demo"):
@@ -420,7 +458,7 @@ def login(req: LoginRequest) -> Dict[str, Any]:
             session = DemoSession()
         else:
             session = webuntis.Session(
-                server=url, school=req.school, username=req.username,
+                server=url, school=school, username=req.username,
                 password=req.password, useragent=USER_AGENT,
             ).login()
     except Exception as exc:
