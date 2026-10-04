@@ -19,6 +19,8 @@ const state = {
   days: 7,
 };
 
+const STORAGE_KEY = "untisHubLogin";
+
 const $ = (id) => document.getElementById(id);
 const tabs = Array.from(document.querySelectorAll(".chip[data-tab]"));
 const weekdaysShort = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
@@ -100,11 +102,13 @@ async function loadOptions() {
   try {
     const payload = await request("/api/addon/options");
     const data = payload.data || {};
-    $("serverInput").value = data.server || "demo.local";
-    $("schoolInput").value = data.school || "demo";
-    state.selectedSchoolLogin = data.school || "demo";
-    state.selectedServer = data.server || "demo.local";
-    $("userInput").value = data.username || "Demo";
+    const stored = loadStoredLogin();
+    $("serverInput").value = stored.server || data.server || "demo.local";
+    $("schoolInput").value = stored.schoolDisplay || data.school || "demo";
+    $("cityInput").value = stored.city || "";
+    state.selectedSchoolLogin = stored.schoolLogin || data.school || "demo";
+    state.selectedServer = stored.server || data.server || "demo.local";
+    $("userInput").value = stored.username || data.username || "Demo";
     $("passwordInput").value = data.password || "Demo";
     state.days = Number(data.days || 7);
     if (data.auto_login) await login();
@@ -114,6 +118,27 @@ async function loadOptions() {
     $("userInput").value = "Demo";
     $("passwordInput").value = "Demo";
   }
+}
+
+function loadStoredLogin() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredLogin(payload = {}) {
+  const current = loadStoredLogin();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    ...current,
+    ...payload,
+    server: state.selectedServer || $("serverInput").value.trim(),
+    schoolDisplay: $("schoolInput").value.trim(),
+    schoolLogin: state.selectedSchoolLogin || $("schoolInput").value.trim(),
+    city: $("cityInput").value.trim(),
+    username: $("userInput").value.trim(),
+  }));
 }
 
 async function login() {
@@ -135,6 +160,7 @@ async function login() {
   state.token = result.access_token;
   state.user = result.user_name || payload.username;
   state.school = payload.school;
+  saveStoredLogin();
   $("subtitle").textContent = `${state.user} · ${state.school}`;
   $("loginPanel").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
@@ -201,6 +227,17 @@ async function searchSchools(query) {
   }
 }
 
+async function searchSchoolsByCity() {
+  const query = $("cityInput").value.trim() || $("schoolInput").value.trim();
+  if (!query) {
+    setMessage("Bitte Stadt oder Schule eingeben", "error");
+    return;
+  }
+  setMessage("Suche Schulen ...");
+  await searchSchools(query);
+  setMessage("");
+}
+
 function renderSchoolResults(items) {
   const results = $("schoolResults");
   results.innerHTML = "";
@@ -212,12 +249,18 @@ function renderSchoolResults(items) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "school-result";
-    button.innerHTML = `<strong>${escapeHtml(school.displayName || school.loginName || "")}</strong><span>${escapeHtml(school.address || school.server || "")}</span>`;
+    const meta = [school.address, school.server, school.loginName].filter(Boolean).join(" · ");
+    button.innerHTML = `<strong>${escapeHtml(school.displayName || school.loginName || "")}</strong><span>${escapeHtml(meta)}</span>`;
     button.addEventListener("click", () => {
       $("schoolInput").value = school.displayName || school.loginName || "";
       $("serverInput").value = school.server || $("serverInput").value;
       state.selectedSchoolLogin = school.loginName || $("schoolInput").value;
       state.selectedServer = school.server || $("serverInput").value;
+      saveStoredLogin({
+        schoolDisplay: school.displayName || school.loginName || "",
+        schoolLogin: school.loginName || "",
+        server: school.server || "",
+      });
       results.classList.add("hidden");
       results.innerHTML = "";
     });
@@ -489,6 +532,7 @@ $("demoBtn").addEventListener("click", () => {
   $("passwordInput").value = "Demo";
   state.selectedSchoolLogin = "demo";
   state.selectedServer = "demo.local";
+  saveStoredLogin({ schoolDisplay: "demo", schoolLogin: "demo", server: "demo.local" });
 });
 $("serverInput").addEventListener("input", () => {
   state.selectedServer = $("serverInput").value.trim();
@@ -497,6 +541,10 @@ $("schoolInput").addEventListener("input", () => {
   clearTimeout(state.schoolSearchTimer);
   state.selectedSchoolLogin = $("schoolInput").value.trim();
   state.schoolSearchTimer = setTimeout(() => searchSchools($("schoolInput").value), 300);
+});
+$("citySearchBtn").addEventListener("click", () => searchSchoolsByCity().catch((err) => setMessage(err.message, "error")));
+$("cityInput").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") searchSchoolsByCity().catch((err) => setMessage(err.message, "error"));
 });
 $("refreshBtn").addEventListener("click", () => reloadAll().catch((err) => setNotice(err.message)));
 $("settingsBtn").addEventListener("click", () => showSettings(true));

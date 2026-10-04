@@ -1,7 +1,7 @@
-name: WebUntis Stundenplan
-version: "0.3.2"
+name: Untis-HUB
+version: "0.4.0"
 slug: webuntis_stundenplan
-description: WebUntis timetable with the APK-style interface for Home Assistant
+description: Untis-HUB timetable with the APK/PySide6-style interface for Home Assistant
 url: https://github.com/Createsince1963/HA_WebUntis
 arch:
   - aarch64
@@ -15,9 +15,10 @@ init: false
 ingress: true
 ingress_port: 8099
 panel_icon: mdi:calendar-clock
-panel_title: Stundenplan
+panel_title: Untis-HUB
 ports:
-  8099/tcp: null
+  8099/tcp: 8099
+webui: http://[HOST]:[PORT:8099]
 options:
   server: demo.local
   school: demo

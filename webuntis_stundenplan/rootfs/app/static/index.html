@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WebUntis Stundenplan</title>
+  <title>Untis-HUB</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <header class="topbar">
       <div class="brand-mark">W</div>
       <div class="brand-copy">
-        <h1>WEBUNTIS</h1>
+        <h1>Untis-HUB</h1>
         <p id="subtitle">Stundenplan</p>
       </div>
       <button id="refreshBtn" class="frame-button" type="button" title="Aktualisieren">Aktualisieren</button>
@@ -20,6 +20,10 @@
     </header>
 
     <section id="loginPanel" class="card login-card">
+      <div class="login-logo">
+        <img src="./assets/untis-hub-logo.png" alt="Untis-HUB">
+        <p>Version 0.4.0</p>
+      </div>
       <div class="card-title">Anmelden</div>
       <div class="field-grid">
         <label>
@@ -30,6 +34,11 @@
           <span>Schule</span>
           <input id="schoolInput" autocomplete="organization" placeholder="demo">
         </label>
+        <label>
+          <span>Stadt / Ort</span>
+          <input id="cityInput" autocomplete="address-level2" placeholder="z. B. Breisach">
+        </label>
+        <button id="citySearchBtn" class="secondary-button search-school-button" type="button">Schule suchen</button>
         <div id="schoolResults" class="school-results hidden"></div>
         <label>
           <span>Benutzer</span>
@@ -98,11 +107,11 @@
       </div>
       <div class="settings-section">
         <div class="setting-title">Home Assistant</div>
-        <p class="status-line">Android-Benachrichtigungen und Wecker aus der APK sind in Home Assistant nicht nativ verfuegbar. Die Datenbereiche und Ansichten sind uebernommen.</p>
+        <p class="status-line">Android-Benachrichtigungen und Wecker aus der APK sind in Home Assistant nicht nativ verfuegbar. Die Datenbereiche und Ansichten sind uebernommen. Die Oberflaeche ist zusaetzlich direkt ueber die HA-IP auf Port 8099 erreichbar.</p>
       </div>
       <div class="settings-section">
         <div class="setting-title">Version</div>
-        <p class="status-line">HA Add-on 0.3.0, Basis WebUntis APK 0.3.0</p>
+        <p class="status-line">HA Add-on 0.4.0, Basis Untis-HUB APK 0.4.0</p>
       </div>
     </section>
   </main>

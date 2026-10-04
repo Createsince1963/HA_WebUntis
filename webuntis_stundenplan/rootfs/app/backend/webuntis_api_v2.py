@@ -39,7 +39,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("webuntis_api")
 
-USER_AGENT = "WebUntisApp/2.0"
+USER_AGENT = "Untis-HUB/0.4.0"
 SESSION_TTL = timedelta(hours=8)
 
 app = FastAPI(title="WebUntis API v2", version="2.1.0")

@@ -1,0 +1,17 @@
+﻿WebUntis - APK build info (same text is embedded in the APK as assets/build-info.txt, without hash/signature)
+============================================================
+Version      : 0.4.0 (versionCode 4)
+Build date   : 2026-10-04 12:09:44
+Build type   : debug (TEST build, debug-signed, not for distribution)
+App ID       : at.webuntis
+APK file     : Untis-HUB_0.4.0.apk (11.66 MB)
+APK SHA-256  : 7e68c04a54af93010b632f80761f363edebb3c724f79f83ebc415c6aaffeb0fa
+Signed by    : C=US, O=Android, CN=Android Debug
+Cert SHA-256 : 72f7392d7405b3f22338bfdd8e716792a6e7667befcba3004e0ff78a3f4a83db
+Signature    : v2
+Security gate: PASSED
+Findings     : Critical=0 High=0 Medium=1 Low=1 Info=0
+  - Medium S02f Exported component without MAIN/LAUNCHER filter: .notify.BootReceiver [android\app\src\main\AndroidManifest.xml]
+  - Low S11 Pre-release dependency: androidx.security:security-crypto:1.1.0-alpha06
+Gradle time  : 41 s
+Toolchain    : JDK jdk-17.0.20.1+1, Gradle 8.13, SDK platforms android-35/android-36

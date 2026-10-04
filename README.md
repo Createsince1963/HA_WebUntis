@@ -1,6 +1,6 @@
 # WebUntis Home Assistant Add-ons
 
-Dieses Repository stellt das Add-on **WebUntis Stundenplan** fuer Home Assistant bereit.
+Dieses Repository stellt das Add-on **Untis-HUB** fuer Home Assistant bereit.
 
 ## Installation in Home Assistant
 
@@ -13,7 +13,7 @@ Dieses Repository stellt das Add-on **WebUntis Stundenplan** fuer Home Assistant
    https://github.com/Createsince1963/HA_WebUntis
    ```
 
-5. Danach erscheint das Add-on **WebUntis Stundenplan** im Add-on Store.
+5. Danach erscheint das Add-on **Untis-HUB** im Add-on Store.
 6. Add-on installieren, konfigurieren und starten.
 7. Ueber die Home-Assistant-Seitenleiste **Stundenplan** oeffnen.
 
@@ -29,7 +29,7 @@ Das Add-on liegt im Ordner:
 webuntis_stundenplan/
 ```
 
-Es nutzt das bestehende WebUntis-Backend aus der APK-Vorlage und bringt eine eigene Web-GUI fuer Home Assistant Ingress mit.
+Es nutzt die bestehende Untis-HUB/WebUntis-Basis aus der APK-Vorlage und bringt eine eigene Web-GUI fuer Home Assistant Ingress und direkten LAN-Zugriff mit.
 
 ## Demo-Konfiguration
 
