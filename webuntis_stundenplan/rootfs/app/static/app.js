@@ -56,6 +56,13 @@ function dm(date) {
   return `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")}.`;
 }
 
+function formatDateDE(value) {
+  const text = String(value || "").trim();
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}.${match[2]}.${match[1]}`;
+  return text.replace(/T00:00:00(?:\.000)?(?:Z)?$/, "");
+}
+
 function parseDate(value) {
   if (!value) return null;
   const d = new Date(String(value).slice(0, 10));
@@ -418,10 +425,12 @@ async function loadTeacherLessons() {
 function rowNode(row) {
   const node = document.createElement("article");
   node.className = "row-card";
-  const title = row.subject || row.name || row.fullName || row.title || row.sender || row.date || "-";
+  const title = row.subject || row.name || row.fullName || row.title || row.sender || formatDateDE(row.date) || "-";
   const parts = [
-    row.date || row.startDate,
-    row.endDate,
+    formatDateDE(row.date || row.startDate),
+    formatDateDE(row.endDate),
+    formatDateDE(row.assigned),
+    formatDateDE(row.due),
     row.teacher || row.shortName || row.originalTeacher,
     row.substituteTeacher,
     row.rooms || row.classroom,
